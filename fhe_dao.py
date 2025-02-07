@@ -37,6 +37,7 @@ class CcFeatureRow(Document):
     def to_dict(self):
         """Return a dictionary representation of the document."""
         return {
+            "id": str(self.id),
             "key_id": self.key_id,
             "tx_date": self.tx_date.isoformat() if self.tx_date else None,
             "principal_id": self.principal_id,
