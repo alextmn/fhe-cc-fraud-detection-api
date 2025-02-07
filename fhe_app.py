@@ -18,6 +18,8 @@ class KeyPairResponse(BaseModel):
     created: datetime
     expired: datetime
 
+
+
 class KeyPairRequest(BaseModel):
     name: str
 
@@ -93,6 +95,11 @@ def fhe_generate_keypair(current_user: User = Depends(get_current_user)):
     dao.fhe_encrypt_db(key_pair.key_id, current_user.principal_id, [1,2,3,4])
     return {}
 
+
+@app.post("/transactions")
+def fhe_cc_transactions(current_user: User = Depends(get_current_user)):
+    t_list = dao.get_cc_transactions(current_user.principal_id)
+    return t_list
 
 @app.get("/protected-route")
 def protected_route(current_user: User = Depends(get_current_user)):

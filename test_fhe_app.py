@@ -1,3 +1,4 @@
+from fhe_data_import import import_csv_to_mongo
 import pytest
 from fastapi.testclient import TestClient
 from fhe_app import app, dao
@@ -7,6 +8,7 @@ client = TestClient(app)
 
 @pytest.fixture(scope="session")
 def shared_token():
+    import_csv_to_mongo()
     response = client.post("/login", data={"username": "alice", "password": "secret"})
     assert response.status_code == 200
     token = response.json()["access_token"]
@@ -40,6 +42,13 @@ def test_fhe_encrypt(shared_token):
     response = client.post("/fhe_encrypt",
                            headers={"Authorization": f"Bearer {shared_token}"},)
     assert response.status_code == 200
+
+def test_fhe_transactions(shared_token):
+    response = client.post("/transactions",
+                           headers={"Authorization": f"Bearer {shared_token}"},)
+                           
+    assert response.status_code == 200
+    print (response.json()[0])
     
 
     

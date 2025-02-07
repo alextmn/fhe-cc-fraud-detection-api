@@ -1,4 +1,4 @@
-from mongoengine import connect, Document, StringField, BinaryField, DateTimeField
+from mongoengine import connect, Document, StringField, BinaryField, DateTimeField, FloatField, ListField
 import mongomock
 import uuid
 from fhe_crypto import fhe_key_gen, prune_pub_key_dir, fhe_encrypt
@@ -18,7 +18,40 @@ class KeyPair(Document):
     public_key = BinaryField(required=True)
     private_key = BinaryField(required=True)
 
-    
+
+class CcFeatureRow(Document):
+    key_id= StringField()
+    tx_date= DateTimeField()
+    principal_id= StringField(required=True)
+    username=StringField(required=True)
+    v_vector= ListField(FloatField(required=True))
+    encrypted=StringField()
+    decrypted= FloatField()
+    actual = StringField(required=True)
+    inference= FloatField()
+    amount= FloatField()
+    status= StringField(required=True)
+    encrypted_ts= DateTimeField()
+    calculated_ts= DateTimeField()
+
+    def to_dict(self):
+        """Return a dictionary representation of the document."""
+        return {
+            "key_id": self.key_id,
+            "tx_date": self.tx_date.isoformat() if self.tx_date else None,
+            "principal_id": self.principal_id,
+            "username": self.username,
+            "v_vector": self.v_vector,
+            "encrypted": self.encrypted,
+            "decrypted": self.decrypted,
+            "actual": self.actual,
+            "inference": self.inference,
+            "amount": self.amount,
+            "status": self.status,
+            "encrypted_ts": self.encrypted_ts.isoformat() if self.encrypted_ts else None,
+            "calculated_ts": self.calculated_ts.isoformat() if self.calculated_ts else None,
+        }
+
 class DAO:
     def generate_keypair(self, name: str, principal_id: str, created: datetime, expired: datetime):
         key_id = f'fhe_{str(uuid.uuid4())}'
@@ -60,3 +93,7 @@ class DAO:
         kp = self.get_keypair(key_id, principal_id)
         e  = fhe_encrypt(vec, kp.crypto_context, kp.public_key)
         return {}
+
+    def get_cc_transactions(self, principal_id: str):
+        return [o.to_dict() for o in CcFeatureRow.objects(principal_id=principal_id)]
+    
