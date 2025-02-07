@@ -2,3 +2,7 @@ fastapi
 uvicorn
 mongoengine
 mongomock
+python-jose[cryptography]
+passlib
+bcrypt==4.0.1
+python-multipart

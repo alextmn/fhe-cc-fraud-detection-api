@@ -1,0 +1,15 @@
+version: "3.8"  # or another supported version
+
+services:
+  fhe-cc-api:
+    build: .
+    ports:
+      - "8000:8000"
+    # (Optional) environment variables
+    environment:
+      - SOME_ENV=some_value
+    # (Optional) volume mapping if you need code changes to reflect in container
+    # volumes:
+    #   - .:/app
+    # (Optional) override the default command from Dockerfile
+    # command: python app.py
