@@ -29,10 +29,7 @@ def fhe_health():
 @app.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
-    print('xxxx', form_data.username, form_data.password)
     user = authenticate_user(form_data.username, form_data.password)
-    print('yyy')
-    print('mmm',user)
 
     if not user:
         raise HTTPException(
@@ -92,8 +89,8 @@ def fhe_remove_keypair(key_id: str, current_user: User = Depends(get_current_use
 
 @app.post("/fhe_encrypt")
 def fhe_generate_keypair(current_user: User = Depends(get_current_user)):
-    key_pair = dao.get_all_keypairs()[0]
-    dao.fhe_encrypt_db(key_pair.key_id, [1,2,3,4])
+    key_pair = dao.get_all_keypairs(current_user.principal_id)[0]
+    dao.fhe_encrypt_db(key_pair.key_id, current_user.principal_id, [1,2,3,4])
     return {}
 
 

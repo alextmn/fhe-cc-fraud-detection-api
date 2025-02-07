@@ -33,7 +33,7 @@ class DAO:
             principal_id = principal_id,
             expired = expired)
         key_pair.save()
-        self.prune_all_key_ids()
+        self.prune_all_key_ids(principal_id)
         
         return key_pair
 
