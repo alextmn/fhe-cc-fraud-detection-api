@@ -5,6 +5,7 @@ from fhe_dao import CcFeatureRow
 
 def import_csv_to_mongo(csv_file_path: str = "some_cc_transactions.csv", 
                         principal_id: str= "alice-1", username="alice"):
+    
     with open(csv_file_path, "r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -17,6 +18,7 @@ def import_csv_to_mongo(csv_file_path: str = "some_cc_transactions.csv",
 
             # Parse amount
             amount_value = float(row["Amount"]) if row["Amount"] else 0.0
+            v_values.append(amount_value)
 
             # Parse Time if it’s in a known format, e.g. "YYYY-MM-DD HH:MM:SS"
             # Adjust strptime format to match your actual CSV data

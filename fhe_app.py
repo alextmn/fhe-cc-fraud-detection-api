@@ -23,6 +23,10 @@ class KeyPairResponse(BaseModel):
 class KeyPairRequest(BaseModel):
     name: str
 
+class EncryptRequest(BaseModel):
+    key_id: str
+    v: List[float]
+
 @app.get("/health")
 @app.get("/")
 def fhe_health():
@@ -54,7 +58,6 @@ def fhe_generate_keypair(data: KeyPairRequest, current_user: User = Depends(get_
     expired = created + timedelta(days=256)
     name = data.name
     
-    principal_id = 'principal_id-bank-1'
     key_pair = dao.generate_keypair(name,
                                      current_user.principal_id, 
                                      created, expired)
@@ -78,23 +81,11 @@ def get_keypairs(current_user: User = Depends(get_current_user)):
         for key_pair in key_pairs
     ]
 
-@app.post("/fhe_keypair", response_model=KeyPairResponse)
-def fhe_generate_keypair(current_user: User = Depends(get_current_user)):
-    key_pair = dao.generate_keypair()
-    return KeyPairResponse(key_id=key_pair.key_id)
-
 @app.delete("/fhe_remove_keypair/{key_id}")
 def fhe_remove_keypair(key_id: str, current_user: User = Depends(get_current_user)):
     if not dao.remove_keypair(key_id):
         raise HTTPException(status_code=404, detail="KeyPair not found")
     return {"message": "KeyPair deleted successfully"}
-
-@app.post("/fhe_encrypt")
-def fhe_generate_keypair(current_user: User = Depends(get_current_user)):
-    key_pair = dao.get_all_keypairs(current_user.principal_id)[0]
-    dao.fhe_encrypt_db(key_pair.key_id, current_user.principal_id, [1,2,3,4])
-    return {}
-
 
 @app.post("/transactions")
 def fhe_cc_transactions(current_user: User = Depends(get_current_user)):
@@ -104,3 +95,10 @@ def fhe_cc_transactions(current_user: User = Depends(get_current_user)):
 @app.get("/protected-route")
 def protected_route(current_user: User = Depends(get_current_user)):
     return {"message": f"Hello, {current_user.username} -  {current_user.principal_id}. You are authorized!"}
+
+@app.post("/fhe_encrypt")
+def fhe_encrypt(data:EncryptRequest, current_user: User = Depends(get_current_user)):
+    #key_pair = dao.pub_key(current_user.principal_id)[0]
+    dao.fhe_encrypt_db(data.key_id, current_user.principal_id, data.v)
+    print(data.key_id)
+    return {}
